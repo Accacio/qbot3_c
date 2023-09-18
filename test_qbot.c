@@ -101,64 +101,91 @@ enum digital_inputs
   };
 
 
+typedef struct VECTOR_3_BOOLEAN {
+  union {
+    struct {
+      t_boolean x;
+      t_boolean y;
+      t_boolean z;
+    };
+    struct {
+      t_boolean right;
+      t_boolean center;
+      t_boolean left;
+    };
+    struct {
+      t_boolean b0;
+      t_boolean b1;
+      t_boolean b2;
+    };
+  };
+} v3b;
+
+typedef struct VECTOR_3_DOUBLE {
+  union {
+    struct {
+      t_double x;
+      t_double y;
+      t_double z;
+    };
+    struct {
+      t_double right;
+      t_double center;
+      t_double left;
+    };
+    struct {
+      t_double red;
+      t_double green;
+      t_double blue;
+    };
+  };
+} v3d;
+
+typedef struct VECTOR_2_BOOLEAN {
+  union {
+    struct {
+      t_boolean x;
+      t_boolean y;
+    };
+    struct {
+      t_boolean right;
+      t_boolean left;
+    };
+    struct {
+      t_boolean red;
+      t_boolean green;
+    };
+  };
+} v2b;
+
+typedef struct VECTOR_2_DOUBLE {
+  union {
+    struct {
+      t_double x;
+      t_double y;
+    };
+    struct {
+      t_double right;
+      t_double left;
+    };
+  };
+} v2d;
+
+
+/* typedef struct DOCK_IR_SENSOR { */
+/*   v3b near; */
+/*   v3b far; */
+/* } ir_sensor; */
 
 typedef struct QBOT_DIGITAL_INPUTS {
-  struct {
-    t_boolean right;
-    t_boolean center;
-    t_boolean left;
-  } bumper;
-  struct {
-    t_boolean right;
-    t_boolean left;
-  } wheel_drop;
-  struct {
-    t_boolean right;
-    t_boolean center;
-    t_boolean left;
-  } cliff;
-  struct {
-    t_boolean b0;
-    t_boolean b1;
-    t_boolean b2;
-  } button;
+  v3b bumper;
+  v2b wheel_drop;
+  v3b cliff;
+  v3b button;
   /* struct { */
-  /*   struct { */
-  /*     struct { */
-  /* 	t_boolean right; */
-  /* 	t_boolean center; */
-  /* 	t_boolean left; */
-  /*     } near; */
-  /*     struct { */
-  /* 	t_boolean right; */
-  /* 	t_boolean center; */
-  /* 	t_boolean left; */
-  /*     } far; */
-  /*   } right; */
-  /*   struct { */
-  /*     struct { */
-  /* 	t_boolean right; */
-  /* 	t_boolean center; */
-  /* 	t_boolean left; */
-  /*     } near; */
-  /*     struct { */
-  /* 	t_boolean right; */
-  /* 	t_boolean center; */
-  /* 	t_boolean left; */
-  /*     } far; */
-  /*   } central; */
-  /*   struct { */
-  /*     struct { */
-  /* 	t_boolean right; */
-  /* 	t_boolean center; */
-  /* 	t_boolean left; */
-  /*     } near; */
-  /*     struct { */
-  /* 	t_boolean right; */
-  /* 	t_boolean center; */
-  /* 	t_boolean left; */
-  /*     } far; */
-  /*   } left; */
+  /*   ir_sensor right; */
+  /*   ir_sensor central; */
+  /*   ir_sensor left; */
   /* } dock_ir; */
 } qbot_digital_inputs;
 
@@ -208,13 +235,8 @@ enum other_inputs
   };
 typedef struct QBOT_OTHER_INPUTS {
   t_double angle_z_axis;
-  struct {
-  t_double x;
-  t_double y;
-  t_double z;
-  } gyroscope;
-  t_double wheel_pwm_right;
-  t_double wheel_pwm_left;
+  v3d gyroscope;
+  v2d wheel_pwm;
   t_double timestamp;
   t_double charger_state;
 } qbot_other_inputs;
@@ -237,16 +259,9 @@ enum digital_outputs
   };
 
 typedef struct QBOT_DIGITAl_OUTPUTS {
-  struct {
-  t_boolean red;
-  t_boolean green;
-  } led1;
-  struct {
-  t_boolean red;
-  t_boolean green;
-  } led2;
+  v2b led1;
+  v2b led2;
 } qbot_digital_outputs;
-
 
 enum other_outputs_channels
   {
@@ -452,8 +467,8 @@ qbot_print_sensors(qbot_encoder_inputs read_encoder_buffer,qbot_digital_inputs r
     mvprintw(32,0,"GYROSCOPE_X %f",read_other_buffer.gyroscope.x);
     mvprintw(33,0,"GYROSCOPE_Y %f",read_other_buffer.gyroscope.y);
     mvprintw(34,0,"GYROSCOPE_Z %f",read_other_buffer.gyroscope.z);
-    mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer.wheel_pwm_right);
-    mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer.wheel_pwm_left);
+    mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer.wheel_pwm.right);
+    mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer.wheel_pwm.left);
     mvprintw(37,0,"TIMESTAMP %f",read_other_buffer.timestamp);
     mvprintw(38,0,"CHARGER_STATE %f",read_other_buffer.charger_state);
 }
@@ -493,7 +508,6 @@ main(int argc, char * argv[])
 				     WHEEL_RIGHT_CHANNEL,
 				     WHEEL_LEFT_CHANNEL,
   };
-  /* t_int32 read_encoder_buffer[TOTAL_ENCODER_INPUTS] = {0}; */
   qbot_encoder_inputs read_encoder_buffer = {0};
   
 
@@ -528,7 +542,6 @@ main(int argc, char * argv[])
 				      /* DOCK_IR_LEFT_FAR_CENTER_CHANNEL, */
 				      /* DOCK_IR_LEFT_FAR_LEFT_CHANNEL, */
   };
-  /* t_boolean read_digital_buffer[TOTAL_DIGITAL_INPUTS] = {0}; */
   qbot_digital_inputs read_digital_buffer = {0};
 
 
@@ -542,7 +555,6 @@ main(int argc, char * argv[])
 				   TIMESTAMP_CHANNEL,
 				   CHARGER_STATE_CHANNEL,
   };
-  /* t_double read_other_buffer[TOTAL_OTHER_INPUTS] = {0}; */
   qbot_other_inputs read_other_buffer = {0};
 
 
@@ -552,7 +564,6 @@ main(int argc, char * argv[])
 				       LED2_RED_CHANNEL,
 				       LED2_GREEN_CHANNEL,
   };
-  /* t_boolean write_digital_buffer[TOTAL_DIGITAL_OUTPUTS] = {1,0,0,0}; */
   qbot_digital_outputs write_digital_buffer = {0};
 
   t_uint32 write_other_channels[] = {
@@ -561,7 +572,6 @@ main(int argc, char * argv[])
 				     CUSTOM_PITCH_CHANNEL,
 				     PREDEFINED_SOUND_CHANNEL,
   };
-  /* t_double write_other_buffer[TOTAL_OTHER_OUTPUTS] = {0}; */
   qbot_other_outputs write_other_buffer = {0};
 
   quanser_bind_functions();
