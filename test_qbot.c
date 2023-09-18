@@ -349,33 +349,31 @@ typedef struct QBOT_OTHER_OUTPUTS {
 
 t_error
 qbot_read(t_card card,
-	      t_uint32 read_encoder_channels[], t_uint32 number_encoder_channels,
-	      qbot_encoder_inputs * read_encoder_buffer,
-	      t_uint32 read_digital_channels[], t_uint32 number_digital_channels,
-	      qbot_digital_inputs * read_digital_buffer,
-	      t_uint32 read_other_channels[], t_uint32 number_other_channels,
-	      qbot_other_inputs * read_other_buffer)
+	  t_uint32 read_encoder_channels[], t_uint32 number_encoder_channels,
+	  qbot_encoder_inputs * read_encoder_buffer,
+	  t_uint32 read_digital_channels[], t_uint32 number_digital_channels,
+	  qbot_digital_inputs * read_digital_buffer,
+	  t_uint32 read_other_channels[], t_uint32 number_other_channels,
+	  qbot_other_inputs * read_other_buffer)
 {
   return
     (*hil_read)(card, // card
-    		NULL,0, // analog
-    		read_encoder_channels,TOTAL_ENCODER_INPUTS, //digital_channels
-    		read_digital_channels,TOTAL_DIGITAL_INPUTS, //digital_lines
-    		read_other_channels,TOTAL_OTHER_INPUTS, // other_channels
-    		NULL, //analog_buffer
-    		(t_int32*)read_encoder_buffer, //encoder_buffer
-    		(t_boolean*)read_digital_buffer, //digital_buffer
-    		(t_double*)read_other_buffer); //other_buffer
-
-  
+		NULL,0, // analog
+		read_encoder_channels,TOTAL_ENCODER_INPUTS, //digital_channels
+		read_digital_channels,TOTAL_DIGITAL_INPUTS, //digital_lines
+		read_other_channels,TOTAL_OTHER_INPUTS, // other_channels
+		NULL, //analog_buffer
+		(t_int32*)read_encoder_buffer, //encoder_buffer
+		(t_boolean*)read_digital_buffer, //digital_buffer
+		(t_double*)read_other_buffer); //other_buffer
 }
 
 t_error
 qbot_write(t_card card,
-	      t_uint32 write_digital_channels[], t_uint32 number_digital_channels,
-	      qbot_digital_outputs write_digital_buffer,
-	      t_uint32 write_other_channels[], t_uint32 number_other_channels,
-	      qbot_other_outputs write_other_buffer)
+	   t_uint32 write_digital_channels[], t_uint32 number_digital_channels,
+	   qbot_digital_outputs write_digital_buffer,
+	   t_uint32 write_other_channels[], t_uint32 number_other_channels,
+	   qbot_other_outputs write_other_buffer)
 {
   return (*hil_write)(card, // card
 		      NULL,0, // analog
@@ -386,8 +384,6 @@ qbot_write(t_card card,
 		      NULL, //encoder_buffer
 		      (t_boolean *) (&write_digital_buffer), //digital_buffer
 		      (t_double*) (&write_other_buffer)); //other_buffer
-
-  
 }
 
 void
@@ -527,8 +523,6 @@ int
 main(int argc, char * argv[])
 {
 
-
-
   t_int32 read_encoder_channels[] = {
 				     WHEEL_RIGHT_CHANNEL,
 				     WHEEL_LEFT_CHANNEL,
@@ -667,7 +661,6 @@ main(int argc, char * argv[])
 
     usleep(1000);
   }
-
 
   qbot_terminate(qbot);
   endwin();
