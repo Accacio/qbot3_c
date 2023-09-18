@@ -523,7 +523,6 @@ quanser_bind_functions()
   BIND_FUNCTION(handle,hil_set_encoder_counts);
   BIND_FUNCTION(handle,hil_get_double_property);
   BIND_FUNCTION(handle,hil_set_double_property);
-  dlclose(handle);
 }
 
 
