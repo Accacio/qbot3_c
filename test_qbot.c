@@ -615,11 +615,11 @@ main(int argc, char * argv[])
   for(;;){
 
     qbot_read(qbot,
-	      read_encoder_channels, TOTAL_ENCODER_INPUTS,
+	      read_encoder_channels, SIZE(read_encoder_channels),
 	      &read_encoder_buffer,
-	      read_digital_channels, TOTAL_DIGITAL_INPUTS,
+	      read_digital_channels, SIZE(read_digital_channels),
 	      &read_digital_buffer,
-	      read_other_channels, TOTAL_OTHER_INPUTS,
+	      read_other_channels, SIZE(read_other_channels),
 	      &read_other_buffer);
 
 
