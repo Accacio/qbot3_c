@@ -605,28 +605,30 @@ main(int argc, char * argv[])
 
     ch = getch();
 
+    qbot_outputs * outputs = &myqbot.outputs;
+
     if(ch!=ERR){
       if(ch==68){ // left
     	if(stop) {
-	  myqbot.outputs.other.wheel_velocity.right=0.0;
-	  myqbot.outputs.other.wheel_velocity.left=0.0;
+	  outputs->other.wheel_velocity.right=0.0;
+	  outputs->other.wheel_velocity.left=0.0;
     	} else {
-	  myqbot.outputs.other.wheel_velocity.right=0.1;
-	  myqbot.outputs.other.wheel_velocity.left=0.1;
+	  outputs->other.wheel_velocity.right=0.1;
+	  outputs->other.wheel_velocity.left=0.1;
     	}
     	stop=!stop;
       }
       if(ch==67){ // right
-	myqbot.outputs.other.predefined_sound++;
-	if(myqbot.outputs.other.predefined_sound>6) {
-	  myqbot.outputs.other.predefined_sound=0;
+	outputs->other.predefined_sound++;
+	if(outputs->other.predefined_sound>6) {
+	  outputs->other.predefined_sound=0;
 	}
       }
       if(ch==66){ // right
     	if(stop) {
-    	  myqbot.outputs.other.custom_pitch=0.0;
+    	  outputs->other.custom_pitch=0.0;
     	} else {
-    	  myqbot.outputs.other.custom_pitch=440.;
+    	  outputs->other.custom_pitch=440.;
     	}
     	stop=!stop;
 	
