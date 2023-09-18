@@ -493,20 +493,8 @@ qbot_terminate(qbot _qbot)
 {
   t_card card = _qbot.card;
 
-  t_uint32 write_digital_channels[] = {
-				       LED1_RED_CHANNEL,
-				       LED1_GREEN_CHANNEL,
-				       LED2_RED_CHANNEL,
-				       LED2_GREEN_CHANNEL,
-  };
-  t_uint32 write_other_channels[] = {
-				     WHEEL_VELOCITY_RIGHT_CHANNEL,
-				     WHEEL_VELOCITY_LEFT_CHANNEL,
-				     CUSTOM_PITCH_CHANNEL,
-				     PREDEFINED_SOUND_CHANNEL,
-  };
-  qbot_outputs outputs = {0};
-
+  // set all outputs to zero
+  memset(&_qbot.outputs, 0, sizeof(_qbot.outputs));
   qbot_write(_qbot);
 
   (*hil_close)(card);
