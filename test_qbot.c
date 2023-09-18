@@ -32,6 +32,65 @@ typedef struct tag_task* t_task;
   }\
 
 
+typedef enum tag_hil_double_property
+  {
+   PROPERTY_DOUBLE_KOBUKI_P_GAIN = 128,
+   PROPERTY_DOUBLE_KOBUKI_I_GAIN,
+   PROPERTY_DOUBLE_KOBUKI_D_GAIN,
+  } t_hil_double_property;
+
+
+t_error
+(*hil_open)(const char* card_type,
+	    const char* card_identifier,
+	    t_card* card);
+
+t_error
+(*hil_set_encoder_counts)(t_card card,
+			  const t_uint32 encoder_channels[], t_uint32 num_channels,
+			  const t_int32 encoder_buffer[]);
+t_error
+(*hil_is_valid)(t_card card);
+
+t_error
+(*hil_close)(t_card card);
+
+t_error
+(*hil_write)(t_card card,
+	     const t_uint32 analog_channels[], t_uint32 num_analog_channels,
+	     const t_uint32 digital_channels[], t_uint32 num_digital_channels,
+	     const t_uint32 digital_lines[], t_uint32 num_digital_lines,
+	     const t_uint32 other_channels[], t_uint32 num_other_channels,
+	     t_double analog_buffer[],
+	     t_int32 encoder_buffer[],
+	     t_boolean digital_buffer[],
+	     t_double other_buffer[]);
+
+t_error
+(*hil_set_card_specific_options)(t_card card,
+				 const char* options,
+				 size_t options_size);
+t_error
+(*hil_read)(t_card card,
+	    const t_uint32 analog_channels[], t_uint32 num_analog_channels,
+	    const t_uint32 digital_channels[], t_uint32 num_digital_channels,
+	    const t_uint32 digital_lines[], t_uint32 num_digital_lines,
+	    const t_uint32 other_channels[], t_uint32 num_other_channels,
+	    t_double analog_buffer[],
+	    t_int32 encoder_buffer[],
+	    t_boolean digital_buffer[],
+	    t_double other_buffer[]);
+
+t_error
+(*hil_get_double_property)(t_card card,
+			   const t_hil_double_property properties[], t_uint32 num_properties,
+			   t_double buffer[]);
+t_error
+(*hil_set_double_property)(t_card card,
+			   t_hil_double_property property_code,
+			   char * buffer, size_t buffer_size);
+
+
 // from docs.quanser.com/quarc/documentation/qbot3.html
 enum digital_inputs_channels
   {
@@ -287,63 +346,6 @@ typedef struct QBOT_OTHER_OUTPUTS {
   t_double predefined_sound;
 } qbot_other_outputs;
 
-typedef enum tag_hil_double_property
-  {
-   PROPERTY_DOUBLE_KOBUKI_P_GAIN = 128,
-   PROPERTY_DOUBLE_KOBUKI_I_GAIN,
-   PROPERTY_DOUBLE_KOBUKI_D_GAIN,
-  } t_hil_double_property;
-
-
-t_error
-(*hil_open)(const char* card_type,
-	    const char* card_identifier,
-	    t_card* card);
-
-t_error
-(*hil_set_encoder_counts)(t_card card,
-			  const t_uint32 encoder_channels[], t_uint32 num_channels,
-			  const t_int32 encoder_buffer[]);
-t_error
-(*hil_is_valid)(t_card card);
-
-t_error
-(*hil_close)(t_card card);
-
-t_error
-(*hil_write)(t_card card,
-	     const t_uint32 analog_channels[], t_uint32 num_analog_channels,
-	     const t_uint32 digital_channels[], t_uint32 num_digital_channels,
-	     const t_uint32 digital_lines[], t_uint32 num_digital_lines,
-	     const t_uint32 other_channels[], t_uint32 num_other_channels,
-	     t_double analog_buffer[],
-	     t_int32 encoder_buffer[],
-	     t_boolean digital_buffer[],
-	     t_double other_buffer[]);
-
-t_error
-(*hil_set_card_specific_options)(t_card card,
-				 const char* options,
-				 size_t options_size);
-t_error
-(*hil_read)(t_card card,
-	    const t_uint32 analog_channels[], t_uint32 num_analog_channels,
-	    const t_uint32 digital_channels[], t_uint32 num_digital_channels,
-	    const t_uint32 digital_lines[], t_uint32 num_digital_lines,
-	    const t_uint32 other_channels[], t_uint32 num_other_channels,
-	    t_double analog_buffer[],
-	    t_int32 encoder_buffer[],
-	    t_boolean digital_buffer[],
-	    t_double other_buffer[]);
-
-t_error
-(*hil_get_double_property)(t_card card,
-			   const t_hil_double_property properties[], t_uint32 num_properties,
-			   t_double buffer[]);
-t_error
-(*hil_set_double_property)(t_card card,
-			   t_hil_double_property property_code,
-			   char * buffer, size_t buffer_size);
 
 t_error
 qbot_write(t_card card,
