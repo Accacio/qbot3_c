@@ -100,6 +100,69 @@ enum digital_inputs
    TOTAL_DIGITAL_INPUTS,
   };
 
+
+
+typedef struct QBOT_DIGITAL_INPUTS {
+  struct {
+    t_boolean right;
+    t_boolean center;
+    t_boolean left;
+  } bumper;
+  struct {
+    t_boolean right;
+    t_boolean left;
+  } wheel_drop;
+  struct {
+    t_boolean right;
+    t_boolean center;
+    t_boolean left;
+  } cliff;
+  struct {
+    t_boolean b0;
+    t_boolean b1;
+    t_boolean b2;
+  } button;
+  /* struct { */
+  /*   struct { */
+  /*     struct { */
+  /* 	t_boolean right; */
+  /* 	t_boolean center; */
+  /* 	t_boolean left; */
+  /*     } near; */
+  /*     struct { */
+  /* 	t_boolean right; */
+  /* 	t_boolean center; */
+  /* 	t_boolean left; */
+  /*     } far; */
+  /*   } right; */
+  /*   struct { */
+  /*     struct { */
+  /* 	t_boolean right; */
+  /* 	t_boolean center; */
+  /* 	t_boolean left; */
+  /*     } near; */
+  /*     struct { */
+  /* 	t_boolean right; */
+  /* 	t_boolean center; */
+  /* 	t_boolean left; */
+  /*     } far; */
+  /*   } central; */
+  /*   struct { */
+  /*     struct { */
+  /* 	t_boolean right; */
+  /* 	t_boolean center; */
+  /* 	t_boolean left; */
+  /*     } near; */
+  /*     struct { */
+  /* 	t_boolean right; */
+  /* 	t_boolean center; */
+  /* 	t_boolean left; */
+  /*     } far; */
+  /*   } left; */
+  /* } dock_ir; */
+} qbot_digital_inputs;
+
+
 enum encoder_inputs_channels
   {
    WHEEL_RIGHT_CHANNEL,
@@ -111,6 +174,14 @@ enum encoder_inputs
    WHEEL_LEFT,
    TOTAL_ENCODER_INPUTS,
   };
+
+typedef struct QBOT_ENCODER_INPUTS {
+  struct {
+    t_int32 right;
+    t_int32 left;
+  } wheel;
+} qbot_encoder_inputs;
+
 
 enum other_inputs_channels
   {
@@ -147,7 +218,6 @@ typedef struct QBOT_OTHER_INPUTS {
   t_double timestamp;
   t_double charger_state;
 } qbot_other_inputs;
-
 
 
 enum digital_outputs_channels
@@ -344,21 +414,21 @@ qbot_terminate(t_card card)
 }
 
 void
-qbot_print_sensors(t_int32 read_encoder_buffer[],t_boolean read_digital_buffer[],qbot_other_inputs read_other_buffer)
+qbot_print_sensors(qbot_encoder_inputs read_encoder_buffer,qbot_digital_inputs read_digital_buffer,qbot_other_inputs read_other_buffer)
 {
-    mvprintw(1,0,"Right wheel encoder: %d",read_encoder_buffer[0]);
-    mvprintw(2,0,"Left  wheel encoder: %d",read_encoder_buffer[1]);
-    mvprintw(3,0,"Right Bumper:        %d",read_digital_buffer[BUMPER_RIGHT]);
-    mvprintw(4,0,"Center Bumper:       %d",read_digital_buffer[BUMPER_CENTER]);
-    mvprintw(5,0,"Left Bumper:         %d",read_digital_buffer[BUMPER_LEFT]);
-    mvprintw(6,0,"Right Wheel drop     %d",read_digital_buffer[WHEEL_DROP_RIGHT]);
-    mvprintw(7,0,"Left Wheel drop      %d",read_digital_buffer[WHEEL_DROP_LEFT]);
-    mvprintw(8,0,"Right cliff          %d",read_digital_buffer[CLIFF_RIGHT]);
-    mvprintw(9,0,"Center cliff         %d",read_digital_buffer[CLIFF_CENTRAL]);
-    mvprintw(10,0,"Left cliff           %d",read_digital_buffer[CLIFF_LEFT]);
-    mvprintw(11,0,"Button B0            %d",read_digital_buffer[BUTTON_B0]);
-    mvprintw(12,0,"Button B1            %d",read_digital_buffer[BUTTON_B1]);
-    mvprintw(13,0,"Button B2            %d",read_digital_buffer[BUTTON_B2]);
+    mvprintw(1,0,"Right wheel encoder: %d",read_encoder_buffer.wheel.right);
+    mvprintw(2,0,"Left  wheel encoder: %d",read_encoder_buffer.wheel.left);
+    mvprintw(3,0,"Right Bumper:        %d",read_digital_buffer.bumper.right);
+    mvprintw(4,0,"Center Bumper:       %d",read_digital_buffer.bumper.center);
+    mvprintw(5,0,"Left Bumper:         %d",read_digital_buffer.bumper.left);
+    mvprintw(6,0,"Right Wheel drop     %d",read_digital_buffer.wheel_drop.right);
+    mvprintw(7,0,"Left Wheel drop      %d",read_digital_buffer.wheel_drop.left);
+    mvprintw(8,0,"Right cliff          %d",read_digital_buffer.cliff.right);
+    mvprintw(9,0,"Center cliff         %d",read_digital_buffer.cliff.center);
+    mvprintw(10,0,"Left cliff           %d",read_digital_buffer.cliff.left);
+    mvprintw(11,0,"Button B0            %d",read_digital_buffer.button.b0);
+    mvprintw(12,0,"Button B1            %d",read_digital_buffer.button.b1);
+    mvprintw(13,0,"Button B2            %d",read_digital_buffer.button.b2);
     /* mvprintw(14,0,"DOCK_IR_RIGHT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_RIGHT]); */
     /* mvprintw(15,0,"DOCK_IR_RIGHT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_CENTER]); */
     /* mvprintw(16,0,"DOCK_IR_RIGHT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_LEFT]); */
@@ -423,7 +493,8 @@ main(int argc, char * argv[])
 				     WHEEL_RIGHT_CHANNEL,
 				     WHEEL_LEFT_CHANNEL,
   };
-  t_int32 read_encoder_buffer[TOTAL_ENCODER_INPUTS] = {0};
+  /* t_int32 read_encoder_buffer[TOTAL_ENCODER_INPUTS] = {0}; */
+  qbot_encoder_inputs read_encoder_buffer = {0};
   
 
   t_uint32 read_digital_channels[] = {
@@ -457,7 +528,8 @@ main(int argc, char * argv[])
 				      /* DOCK_IR_LEFT_FAR_CENTER_CHANNEL, */
 				      /* DOCK_IR_LEFT_FAR_LEFT_CHANNEL, */
   };
-  t_boolean read_digital_buffer[TOTAL_DIGITAL_INPUTS] = {0};
+  /* t_boolean read_digital_buffer[TOTAL_DIGITAL_INPUTS] = {0}; */
+  qbot_digital_inputs read_digital_buffer = {0};
 
 
   t_int32 read_other_channels[] = {
@@ -513,8 +585,8 @@ main(int argc, char * argv[])
     		read_digital_channels,TOTAL_DIGITAL_INPUTS, //digital_lines
     		read_other_channels,TOTAL_OTHER_INPUTS, // other_channels
     		NULL, //analog_buffer
-    		read_encoder_buffer, //encoder_buffer
-    		read_digital_buffer, //digital_buffer
+    		(t_int32*)&read_encoder_buffer, //encoder_buffer
+    		(t_boolean*)&read_digital_buffer, //digital_buffer
     		(t_double*)&read_other_buffer); //other_buffer
 
     ch = getch();
