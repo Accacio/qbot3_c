@@ -8,16 +8,18 @@
 #include <dlfcn.h>
 #include <curses.h>
 
-typedef char t_boolean;
-typedef char t_boolean;
-typedef unsigned int t_uint;
-typedef unsigned short t_ushort;
-typedef t_ushort t_uint16;
-typedef t_uint t_uint32;
-typedef signed int t_int;
-typedef t_int t_int32;
-typedef t_int t_error;
-typedef double t_double;
+typedef char               t_boolean;
+typedef unsigned int       t_uint;
+typedef unsigned long long t_ulong;
+typedef unsigned short     t_ushort;
+typedef t_ushort           t_uint16;
+typedef t_uint             t_uint32;
+typedef t_ulong            t_uint64;
+typedef signed int         t_int;
+typedef t_int              t_int32;
+typedef t_int              t_error;
+typedef float              t_single;
+typedef double             t_double;
 
 typedef struct tag_card* t_card;
 typedef struct tag_task* t_task;
