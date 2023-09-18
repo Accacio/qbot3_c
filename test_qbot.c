@@ -527,9 +527,7 @@ main(int argc, char * argv[])
 				     WHEEL_RIGHT_CHANNEL,
 				     WHEEL_LEFT_CHANNEL,
   };
-  qbot_encoder_inputs read_encoder_buffer = {0};
   
-
   t_uint32 read_digital_channels[] = {
 				      BUMPER_RIGHT_CHANNEL,
 				      BUMPER_CENTER_CHANNEL,
@@ -561,8 +559,6 @@ main(int argc, char * argv[])
 				      /* DOCK_IR_LEFT_FAR_CENTER_CHANNEL, */
 				      /* DOCK_IR_LEFT_FAR_LEFT_CHANNEL, */
   };
-  qbot_digital_inputs read_digital_buffer = {0};
-
 
   t_int32 read_other_channels[] = {
 				   ANGLE_Z_AXIS_CHANNEL,
@@ -574,23 +570,26 @@ main(int argc, char * argv[])
 				   TIMESTAMP_CHANNEL,
 				   CHARGER_STATE_CHANNEL,
   };
-  qbot_other_inputs read_other_buffer = {0};
-
-
   t_uint32 write_digital_channels[] = {
 				       LED1_RED_CHANNEL,
 				       LED1_GREEN_CHANNEL,
 				       LED2_RED_CHANNEL,
 				       LED2_GREEN_CHANNEL,
   };
-  qbot_digital_outputs write_digital_buffer = {0};
-
   t_uint32 write_other_channels[] = {
 				     WHEEL_VELOCITY_RIGHT_CHANNEL,
 				     WHEEL_VELOCITY_LEFT_CHANNEL,
 				     CUSTOM_PITCH_CHANNEL,
 				     PREDEFINED_SOUND_CHANNEL,
   };
+  qbot_encoder_inputs read_encoder_buffer = {0};
+
+  qbot_digital_inputs read_digital_buffer = {0};
+
+  qbot_other_inputs read_other_buffer = {0};
+
+  qbot_digital_outputs write_digital_buffer = {0};
+
   qbot_other_outputs write_other_buffer = {0};
 
   quanser_bind_functions();
