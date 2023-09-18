@@ -346,6 +346,67 @@ typedef struct QBOT_OTHER_OUTPUTS {
   t_double predefined_sound;
 } qbot_other_outputs;
 
+t_int32 read_encoder_channels[] = {
+				   WHEEL_RIGHT_CHANNEL,
+				   WHEEL_LEFT_CHANNEL,
+};
+  
+t_uint32 read_digital_channels[] = {
+				    BUMPER_RIGHT_CHANNEL,
+				    BUMPER_CENTER_CHANNEL,
+				    BUMPER_LEFT_CHANNEL,
+				    WHEEL_DROP_RIGHT_CHANNEL,
+				    WHEEL_DROP_LEFT_CHANNEL,
+				    CLIFF_RIGHT_CHANNEL,
+				    CLIFF_CENTRAL_CHANNEL,
+				    CLIFF_LEFT_CHANNEL,
+				    BUTTON_B0_CHANNEL,
+				    BUTTON_B1_CHANNEL,
+				    BUTTON_B2_CHANNEL,
+				    /* DOCK_IR_RIGHT_NEAR_RIGHT_CHANNEL, */
+				    /* DOCK_IR_RIGHT_NEAR_CENTER_CHANNEL, */
+				    /* DOCK_IR_RIGHT_NEAR_LEFT_CHANNEL, */
+				    /* DOCK_IR_RIGHT_FAR_RIGHT_CHANNEL, */
+				    /* DOCK_IR_RIGHT_FAR_CENTER_CHANNEL, */
+				    /* DOCK_IR_RIGHT_FAR_LEFT_CHANNEL, */
+				    /* DOCK_IR_CENTRAL_NEAR_RIGHT_CHANNEL, */
+				    /* DOCK_IR_CENTRAL_NEAR_CENTER_CHANNEL, */
+				    /* DOCK_IR_CENTRAL_NEAR_LEFT_CHANNEL, */
+				    /* DOCK_IR_CENTRAL_FAR_RIGHT_CHANNEL, */
+				    /* DOCK_IR_CENTRAL_FAR_CENTER_CHANNEL, */
+				    /* DOCK_IR_CENTRAL_FAR_LEFT_CHANNEL, */
+				    /* DOCK_IR_LEFT_NEAR_RIGHT_CHANNEL, */
+				    /* DOCK_IR_LEFT_NEAR_CENTER_CHANNEL, */
+				    /* DOCK_IR_LEFT_NEAR_LEFT_CHANNEL, */
+				    /* DOCK_IR_LEFT_FAR_RIGHT_CHANNEL, */
+				    /* DOCK_IR_LEFT_FAR_CENTER_CHANNEL, */
+				    /* DOCK_IR_LEFT_FAR_LEFT_CHANNEL, */
+};
+
+t_int32 read_other_channels[] = {
+				 ANGLE_Z_AXIS_CHANNEL,
+				 GYROSCOPE_X_CHANNEL,
+				 GYROSCOPE_Y_CHANNEL,
+				 GYROSCOPE_Z_CHANNEL,
+				 WHEEL_PWM_RIGHT_CHANNEL,
+				 WHEEL_PWM_LEFT_CHANNEL,
+				 TIMESTAMP_CHANNEL,
+				 CHARGER_STATE_CHANNEL,
+};
+t_uint32 write_digital_channels[] = {
+				     LED1_RED_CHANNEL,
+				     LED1_GREEN_CHANNEL,
+				     LED2_RED_CHANNEL,
+				     LED2_GREEN_CHANNEL,
+};
+t_uint32 write_other_channels[] = {
+				   WHEEL_VELOCITY_RIGHT_CHANNEL,
+				   WHEEL_VELOCITY_LEFT_CHANNEL,
+				   CUSTOM_PITCH_CHANNEL,
+				   PREDEFINED_SOUND_CHANNEL,
+};
+
+
 
 t_error
 qbot_read(t_card card,
@@ -452,46 +513,46 @@ qbot_terminate(t_card card)
 void
 qbot_print_sensors(qbot_encoder_inputs read_encoder_buffer,qbot_digital_inputs read_digital_buffer,qbot_other_inputs read_other_buffer)
 {
-    mvprintw(1,0,"Right wheel encoder: %d",read_encoder_buffer.wheel.right);
-    mvprintw(2,0,"Left  wheel encoder: %d",read_encoder_buffer.wheel.left);
-    mvprintw(3,0,"Right Bumper:        %d",read_digital_buffer.bumper.right);
-    mvprintw(4,0,"Center Bumper:       %d",read_digital_buffer.bumper.center);
-    mvprintw(5,0,"Left Bumper:         %d",read_digital_buffer.bumper.left);
-    mvprintw(6,0,"Right Wheel drop     %d",read_digital_buffer.wheel_drop.right);
-    mvprintw(7,0,"Left Wheel drop      %d",read_digital_buffer.wheel_drop.left);
-    mvprintw(8,0,"Right cliff          %d",read_digital_buffer.cliff.right);
-    mvprintw(9,0,"Center cliff         %d",read_digital_buffer.cliff.center);
-    mvprintw(10,0,"Left cliff           %d",read_digital_buffer.cliff.left);
-    mvprintw(11,0,"Button B0            %d",read_digital_buffer.button.b0);
-    mvprintw(12,0,"Button B1            %d",read_digital_buffer.button.b1);
-    mvprintw(13,0,"Button B2            %d",read_digital_buffer.button.b2);
-    /* mvprintw(14,0,"DOCK_IR_RIGHT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_RIGHT]); */
-    /* mvprintw(15,0,"DOCK_IR_RIGHT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_CENTER]); */
-    /* mvprintw(16,0,"DOCK_IR_RIGHT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_LEFT]); */
-    /* mvprintw(17,0,"DOCK_IR_RIGHT_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_RIGHT]); */
-    /* mvprintw(18,0,"DOCK_IR_RIGHT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_CENTER]); */
-    /* mvprintw(19,0,"DOCK_IR_RIGHT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_LEFT]); */
-    /* mvprintw(20,0,"DOCK_IR_CENTRAL_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_RIGHT]); */
-    /* mvprintw(21,0,"DOCK_IR_CENTRAL_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_CENTER]); */
-    /* mvprintw(22,0,"DOCK_IR_CENTRAL_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_LEFT]); */
-    /* mvprintw(23,0,"DOCK_IR_CENTRAL_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_RIGHT]); */
-    /* mvprintw(24,0,"DOCK_IR_CENTRAL_FAR_CENTER %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_CENTER]); */
-    /* mvprintw(25,0,"DOCK_IR_CENTRAL_FAR_LEFT %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_LEFT]); */
-    /* mvprintw(26,0,"DOCK_IR_LEFT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_RIGHT]); */
-    /* mvprintw(27,0,"DOCK_IR_LEFT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_CENTER]); */
-    /* mvprintw(28,0,"DOCK_IR_LEFT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_LEFT]); */
-    /* mvprintw(29,0,"DOCK_IR_LEFT_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_RIGHT]); */
-    /* mvprintw(30,0,"DOCK_IR_LEFT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_FAR_CENTER]); */
-    /* mvprintw(31,0,"DOCK_IR_LEFT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_LEFT]); */
+  mvprintw(1,0,"Right wheel encoder: %d",read_encoder_buffer.wheel.right);
+  mvprintw(2,0,"Left  wheel encoder: %d",read_encoder_buffer.wheel.left);
+  mvprintw(3,0,"Right Bumper:        %d",read_digital_buffer.bumper.right);
+  mvprintw(4,0,"Center Bumper:       %d",read_digital_buffer.bumper.center);
+  mvprintw(5,0,"Left Bumper:         %d",read_digital_buffer.bumper.left);
+  mvprintw(6,0,"Right Wheel drop     %d",read_digital_buffer.wheel_drop.right);
+  mvprintw(7,0,"Left Wheel drop      %d",read_digital_buffer.wheel_drop.left);
+  mvprintw(8,0,"Right cliff          %d",read_digital_buffer.cliff.right);
+  mvprintw(9,0,"Center cliff         %d",read_digital_buffer.cliff.center);
+  mvprintw(10,0,"Left cliff           %d",read_digital_buffer.cliff.left);
+  mvprintw(11,0,"Button B0            %d",read_digital_buffer.button.b0);
+  mvprintw(12,0,"Button B1            %d",read_digital_buffer.button.b1);
+  mvprintw(13,0,"Button B2            %d",read_digital_buffer.button.b2);
+  /* mvprintw(14,0,"DOCK_IR_RIGHT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_RIGHT]); */
+  /* mvprintw(15,0,"DOCK_IR_RIGHT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_CENTER]); */
+  /* mvprintw(16,0,"DOCK_IR_RIGHT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_LEFT]); */
+  /* mvprintw(17,0,"DOCK_IR_RIGHT_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_RIGHT]); */
+  /* mvprintw(18,0,"DOCK_IR_RIGHT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_CENTER]); */
+  /* mvprintw(19,0,"DOCK_IR_RIGHT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_LEFT]); */
+  /* mvprintw(20,0,"DOCK_IR_CENTRAL_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_RIGHT]); */
+  /* mvprintw(21,0,"DOCK_IR_CENTRAL_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_CENTER]); */
+  /* mvprintw(22,0,"DOCK_IR_CENTRAL_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_LEFT]); */
+  /* mvprintw(23,0,"DOCK_IR_CENTRAL_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_RIGHT]); */
+  /* mvprintw(24,0,"DOCK_IR_CENTRAL_FAR_CENTER %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_CENTER]); */
+  /* mvprintw(25,0,"DOCK_IR_CENTRAL_FAR_LEFT %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_LEFT]); */
+  /* mvprintw(26,0,"DOCK_IR_LEFT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_RIGHT]); */
+  /* mvprintw(27,0,"DOCK_IR_LEFT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_CENTER]); */
+  /* mvprintw(28,0,"DOCK_IR_LEFT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_LEFT]); */
+  /* mvprintw(29,0,"DOCK_IR_LEFT_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_RIGHT]); */
+  /* mvprintw(30,0,"DOCK_IR_LEFT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_FAR_CENTER]); */
+  /* mvprintw(31,0,"DOCK_IR_LEFT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_LEFT]); */
 
-    mvprintw(31,0,"ANGLE_Z_AXIS %f",read_other_buffer.angle_z_axis);
-    mvprintw(32,0,"GYROSCOPE_X %f",read_other_buffer.gyroscope.x);
-    mvprintw(33,0,"GYROSCOPE_Y %f",read_other_buffer.gyroscope.y);
-    mvprintw(34,0,"GYROSCOPE_Z %f",read_other_buffer.gyroscope.z);
-    mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer.wheel_pwm.right);
-    mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer.wheel_pwm.left);
-    mvprintw(37,0,"TIMESTAMP %f",read_other_buffer.timestamp);
-    mvprintw(38,0,"CHARGER_STATE %f",read_other_buffer.charger_state);
+  mvprintw(31,0,"ANGLE_Z_AXIS %f",read_other_buffer.angle_z_axis);
+  mvprintw(32,0,"GYROSCOPE_X %f",read_other_buffer.gyroscope.x);
+  mvprintw(33,0,"GYROSCOPE_Y %f",read_other_buffer.gyroscope.y);
+  mvprintw(34,0,"GYROSCOPE_Z %f",read_other_buffer.gyroscope.z);
+  mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer.wheel_pwm.right);
+  mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer.wheel_pwm.left);
+  mvprintw(37,0,"TIMESTAMP %f",read_other_buffer.timestamp);
+  mvprintw(38,0,"CHARGER_STATE %f",read_other_buffer.charger_state);
 }
 
 
@@ -522,66 +583,6 @@ quanser_bind_functions()
 int
 main(int argc, char * argv[])
 {
-
-  t_int32 read_encoder_channels[] = {
-				     WHEEL_RIGHT_CHANNEL,
-				     WHEEL_LEFT_CHANNEL,
-  };
-  
-  t_uint32 read_digital_channels[] = {
-				      BUMPER_RIGHT_CHANNEL,
-				      BUMPER_CENTER_CHANNEL,
-				      BUMPER_LEFT_CHANNEL,
-				      WHEEL_DROP_RIGHT_CHANNEL,
-				      WHEEL_DROP_LEFT_CHANNEL,
-				      CLIFF_RIGHT_CHANNEL,
-				      CLIFF_CENTRAL_CHANNEL,
-				      CLIFF_LEFT_CHANNEL,
-				      BUTTON_B0_CHANNEL,
-				      BUTTON_B1_CHANNEL,
-				      BUTTON_B2_CHANNEL,
-				      /* DOCK_IR_RIGHT_NEAR_RIGHT_CHANNEL, */
-				      /* DOCK_IR_RIGHT_NEAR_CENTER_CHANNEL, */
-				      /* DOCK_IR_RIGHT_NEAR_LEFT_CHANNEL, */
-				      /* DOCK_IR_RIGHT_FAR_RIGHT_CHANNEL, */
-				      /* DOCK_IR_RIGHT_FAR_CENTER_CHANNEL, */
-				      /* DOCK_IR_RIGHT_FAR_LEFT_CHANNEL, */
-				      /* DOCK_IR_CENTRAL_NEAR_RIGHT_CHANNEL, */
-				      /* DOCK_IR_CENTRAL_NEAR_CENTER_CHANNEL, */
-				      /* DOCK_IR_CENTRAL_NEAR_LEFT_CHANNEL, */
-				      /* DOCK_IR_CENTRAL_FAR_RIGHT_CHANNEL, */
-				      /* DOCK_IR_CENTRAL_FAR_CENTER_CHANNEL, */
-				      /* DOCK_IR_CENTRAL_FAR_LEFT_CHANNEL, */
-				      /* DOCK_IR_LEFT_NEAR_RIGHT_CHANNEL, */
-				      /* DOCK_IR_LEFT_NEAR_CENTER_CHANNEL, */
-				      /* DOCK_IR_LEFT_NEAR_LEFT_CHANNEL, */
-				      /* DOCK_IR_LEFT_FAR_RIGHT_CHANNEL, */
-				      /* DOCK_IR_LEFT_FAR_CENTER_CHANNEL, */
-				      /* DOCK_IR_LEFT_FAR_LEFT_CHANNEL, */
-  };
-
-  t_int32 read_other_channels[] = {
-				   ANGLE_Z_AXIS_CHANNEL,
-				   GYROSCOPE_X_CHANNEL,
-				   GYROSCOPE_Y_CHANNEL,
-				   GYROSCOPE_Z_CHANNEL,
-				   WHEEL_PWM_RIGHT_CHANNEL,
-				   WHEEL_PWM_LEFT_CHANNEL,
-				   TIMESTAMP_CHANNEL,
-				   CHARGER_STATE_CHANNEL,
-  };
-  t_uint32 write_digital_channels[] = {
-				       LED1_RED_CHANNEL,
-				       LED1_GREEN_CHANNEL,
-				       LED2_RED_CHANNEL,
-				       LED2_GREEN_CHANNEL,
-  };
-  t_uint32 write_other_channels[] = {
-				     WHEEL_VELOCITY_RIGHT_CHANNEL,
-				     WHEEL_VELOCITY_LEFT_CHANNEL,
-				     CUSTOM_PITCH_CHANNEL,
-				     PREDEFINED_SOUND_CHANNEL,
-  };
   qbot_encoder_inputs read_encoder_buffer = {0};
 
   qbot_digital_inputs read_digital_buffer = {0};
@@ -630,10 +631,10 @@ main(int argc, char * argv[])
     	stop=!stop;
       }
       if(ch==67){ // right
-    	  write_other_buffer.predefined_sound++;
-    	  if(write_other_buffer.predefined_sound>6) {
-    	    write_other_buffer.predefined_sound=0;
-    	  }
+	write_other_buffer.predefined_sound++;
+	if(write_other_buffer.predefined_sound>6) {
+	  write_other_buffer.predefined_sound=0;
+	}
       }
       if(ch==66){ // right
     	if(stop) {
@@ -653,10 +654,10 @@ main(int argc, char * argv[])
     qbot_print_sensors(read_encoder_buffer, read_digital_buffer, read_other_buffer);
 
     qbot_write(qbot,
-		  write_digital_channels,SIZE(write_digital_channels),
-		  write_digital_buffer,
-		  write_other_channels,SIZE(write_other_channels),
-		  write_other_buffer);
+	       write_digital_channels,SIZE(write_digital_channels),
+	       write_digital_buffer,
+	       write_other_channels,SIZE(write_other_channels),
+	       write_other_buffer);
 
     usleep(1000);
   }
