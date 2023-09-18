@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 #include "qbot.h"
 #include "qbot_curses.h"
 
