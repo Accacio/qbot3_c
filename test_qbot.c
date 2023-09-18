@@ -300,6 +300,11 @@ typedef struct QBOT_OTHER_INPUTS {
   t_double charger_state;
 } qbot_other_inputs;
 
+typedef struct QBOT_INPUTS {
+  qbot_encoder_inputs encoder;
+  qbot_digital_inputs digital;
+  qbot_other_inputs other;
+} qbot_inputs;
 
 enum digital_outputs_channels
   {
@@ -346,11 +351,21 @@ typedef struct QBOT_OTHER_OUTPUTS {
   t_double predefined_sound;
 } qbot_other_outputs;
 
+typedef struct QBOT_OUTPUTS {
+  qbot_digital_outputs digital;
+  qbot_other_outputs other;
+} qbot_outputs;
+
+typedef struct QBOT {
+  t_card card;
+  qbot_inputs inputs;
+  qbot_outputs outputs;
+} qbot;
+
 t_int32 read_encoder_channels[] = {
 				   WHEEL_RIGHT_CHANNEL,
 				   WHEEL_LEFT_CHANNEL,
 };
-  
 t_uint32 read_digital_channels[] = {
 				    BUMPER_RIGHT_CHANNEL,
 				    BUMPER_CENTER_CHANNEL,
@@ -407,16 +422,11 @@ t_uint32 write_other_channels[] = {
 };
 
 
-
 t_error
-qbot_read(t_card card,
-	  t_uint32 read_encoder_channels[], t_uint32 number_encoder_channels,
-	  qbot_encoder_inputs * read_encoder_buffer,
-	  t_uint32 read_digital_channels[], t_uint32 number_digital_channels,
-	  qbot_digital_inputs * read_digital_buffer,
-	  t_uint32 read_other_channels[], t_uint32 number_other_channels,
-	  qbot_other_inputs * read_other_buffer)
+qbot_read(qbot * _qbot)
 {
+  t_card card = _qbot->card;
+  qbot_inputs * inputs = &_qbot->inputs;
   return
     (*hil_read)(card, // card
 		NULL,0, // analog
@@ -424,38 +434,36 @@ qbot_read(t_card card,
 		read_digital_channels,TOTAL_DIGITAL_INPUTS, //digital_lines
 		read_other_channels,TOTAL_OTHER_INPUTS, // other_channels
 		NULL, //analog_buffer
-		(t_int32*)read_encoder_buffer, //encoder_buffer
-		(t_boolean*)read_digital_buffer, //digital_buffer
-		(t_double*)read_other_buffer); //other_buffer
+		(t_int32*)&inputs->encoder, //encoder_buffer
+		(t_boolean*)&inputs->digital, //digital_buffer
+		(t_double*)&inputs->other); //other_buffer
 }
 
 t_error
-qbot_write(t_card card,
-	   t_uint32 write_digital_channels[], t_uint32 number_digital_channels,
-	   qbot_digital_outputs write_digital_buffer,
-	   t_uint32 write_other_channels[], t_uint32 number_other_channels,
-	   qbot_other_outputs write_other_buffer)
+qbot_write(qbot _qbot)
 {
+  t_card card = _qbot.card;
+  qbot_outputs outputs = _qbot.outputs;
   return (*hil_write)(card, // card
 		      NULL,0, // analog
 		      NULL,0, //digital_channels
-		      write_digital_channels,number_digital_channels, //digital_lines
-		      write_other_channels,number_other_channels, // other_channels
+		      write_digital_channels,TOTAL_DIGITAL_OUTPUTS, //digital_lines
+		      write_other_channels,TOTAL_OTHER_OUTPUTS, // other_channels
 		      NULL, //analog_buffer
 		      NULL, //encoder_buffer
-		      (t_boolean *) (&write_digital_buffer), //digital_buffer
-		      (t_double*) (&write_other_buffer)); //other_buffer
+		      (t_boolean *) (&outputs.digital), //digital_buffer
+		      (t_double*) (&outputs.other)); //other_buffer
 }
 
 void
-qbot_initialize(t_card *card)
+qbot_initialize(qbot * _qbot)
 {
-  t_error hil_error = (*hil_open)("qbot3","0",card);
+  t_error hil_error = (*hil_open)("qbot3","0",&_qbot->card);
   if(hil_error){
     printf("Quanser Error no: %d\n",hil_error);
   }
 
-  t_boolean is_hil_valid = (*hil_is_valid)(*card);
+  t_boolean is_hil_valid = (*hil_is_valid)(_qbot->card);
   if(!is_hil_valid){
     printf("Failed to connect\n");
     exit(EXIT_FAILURE);
@@ -472,14 +480,15 @@ qbot_initialize(t_card *card)
 				     WHEEL_LEFT_CHANNEL,
   };
   t_int32 read_encoder_buffer[TOTAL_ENCODER_INPUTS] = {0};
-  (*hil_set_encoder_counts)(*card,
+  (*hil_set_encoder_counts)(_qbot->card,
   			    read_encoder_channels,TOTAL_ENCODER_INPUTS,
   			    read_encoder_buffer);
 }
 
 void
-qbot_terminate(t_card card)
+qbot_terminate(qbot _qbot)
 {
+  t_card card = _qbot.card;
 
   t_uint32 write_digital_channels[] = {
 				       LED1_RED_CHANNEL,
@@ -487,72 +496,65 @@ qbot_terminate(t_card card)
 				       LED2_RED_CHANNEL,
 				       LED2_GREEN_CHANNEL,
   };
-  /* t_boolean write_digital_buffer[TOTAL_DIGITAL_OUTPUTS] = {1,0,0,0}; */
-  qbot_digital_outputs write_digital_buffer = {0};
-
   t_uint32 write_other_channels[] = {
 				     WHEEL_VELOCITY_RIGHT_CHANNEL,
 				     WHEEL_VELOCITY_LEFT_CHANNEL,
 				     CUSTOM_PITCH_CHANNEL,
 				     PREDEFINED_SOUND_CHANNEL,
   };
-  /* t_double write_other_buffer[TOTAL_OTHER_OUTPUTS] = {0}; */
-  qbot_other_outputs write_other_buffer = {0};
+  qbot_outputs outputs = {0};
 
-  // use memset to zero buffers (if using same buffers)
-  /* memset(&write_digital_buffer,0,sizeof(write_digital_buffer)); */
-  qbot_write(card,
-	     write_digital_channels,SIZE(write_digital_channels),
-	     write_digital_buffer,
-	     write_other_channels,SIZE(write_other_channels),
-	     write_other_buffer);
+  qbot_write(_qbot);
 
   (*hil_close)(card);
 }
 
 void
-qbot_print_sensors(qbot_encoder_inputs read_encoder_buffer,qbot_digital_inputs read_digital_buffer,qbot_other_inputs read_other_buffer)
+qbot_print_curses_sensors(qbot _qbot)
 {
-  mvprintw(1,0,"Right wheel encoder: %d",read_encoder_buffer.wheel.right);
-  mvprintw(2,0,"Left  wheel encoder: %d",read_encoder_buffer.wheel.left);
-  mvprintw(3,0,"Right Bumper:        %d",read_digital_buffer.bumper.right);
-  mvprintw(4,0,"Center Bumper:       %d",read_digital_buffer.bumper.center);
-  mvprintw(5,0,"Left Bumper:         %d",read_digital_buffer.bumper.left);
-  mvprintw(6,0,"Right Wheel drop     %d",read_digital_buffer.wheel_drop.right);
-  mvprintw(7,0,"Left Wheel drop      %d",read_digital_buffer.wheel_drop.left);
-  mvprintw(8,0,"Right cliff          %d",read_digital_buffer.cliff.right);
-  mvprintw(9,0,"Center cliff         %d",read_digital_buffer.cliff.center);
-  mvprintw(10,0,"Left cliff           %d",read_digital_buffer.cliff.left);
-  mvprintw(11,0,"Button B0            %d",read_digital_buffer.button.b0);
-  mvprintw(12,0,"Button B1            %d",read_digital_buffer.button.b1);
-  mvprintw(13,0,"Button B2            %d",read_digital_buffer.button.b2);
-  /* mvprintw(14,0,"DOCK_IR_RIGHT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_RIGHT]); */
-  /* mvprintw(15,0,"DOCK_IR_RIGHT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_CENTER]); */
-  /* mvprintw(16,0,"DOCK_IR_RIGHT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_NEAR_LEFT]); */
-  /* mvprintw(17,0,"DOCK_IR_RIGHT_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_RIGHT]); */
-  /* mvprintw(18,0,"DOCK_IR_RIGHT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_CENTER]); */
-  /* mvprintw(19,0,"DOCK_IR_RIGHT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_RIGHT_FAR_LEFT]); */
-  /* mvprintw(20,0,"DOCK_IR_CENTRAL_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_RIGHT]); */
-  /* mvprintw(21,0,"DOCK_IR_CENTRAL_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_CENTER]); */
-  /* mvprintw(22,0,"DOCK_IR_CENTRAL_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_CENTRAL_NEAR_LEFT]); */
-  /* mvprintw(23,0,"DOCK_IR_CENTRAL_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_RIGHT]); */
-  /* mvprintw(24,0,"DOCK_IR_CENTRAL_FAR_CENTER %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_CENTER]); */
-  /* mvprintw(25,0,"DOCK_IR_CENTRAL_FAR_LEFT %d",read_digital_buffer[DOCK_IR_CENTRAL_FAR_LEFT]); */
-  /* mvprintw(26,0,"DOCK_IR_LEFT_NEAR_RIGHT %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_RIGHT]); */
-  /* mvprintw(27,0,"DOCK_IR_LEFT_NEAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_CENTER]); */
-  /* mvprintw(28,0,"DOCK_IR_LEFT_NEAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_NEAR_LEFT]); */
-  /* mvprintw(29,0,"DOCK_IR_LEFT_FAR_RIGHT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_RIGHT]); */
-  /* mvprintw(30,0,"DOCK_IR_LEFT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_FAR_CENTER]); */
-  /* mvprintw(31,0,"DOCK_IR_LEFT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_LEFT]); */
+  qbot_inputs inputs = _qbot.inputs;
 
-  mvprintw(31,0,"ANGLE_Z_AXIS %f",read_other_buffer.angle_z_axis);
-  mvprintw(32,0,"GYROSCOPE_X %f",read_other_buffer.gyroscope.x);
-  mvprintw(33,0,"GYROSCOPE_Y %f",read_other_buffer.gyroscope.y);
-  mvprintw(34,0,"GYROSCOPE_Z %f",read_other_buffer.gyroscope.z);
-  mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer.wheel_pwm.right);
-  mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer.wheel_pwm.left);
-  mvprintw(37,0,"TIMESTAMP %f",read_other_buffer.timestamp);
-  mvprintw(38,0,"CHARGER_STATE %f",read_other_buffer.charger_state);
+  erase(); 
+  mvprintw(1,0,"Right wheel encoder: %d",inputs.encoder.wheel.right);
+  mvprintw(2,0,"Left  wheel encoder: %d",inputs.encoder.wheel.left);
+  mvprintw(3,0,"Right Bumper:        %d",inputs.digital.bumper.right);
+  mvprintw(4,0,"Center Bumper:       %d",inputs.digital.bumper.center);
+  mvprintw(5,0,"Left Bumper:         %d",inputs.digital.bumper.left);
+  mvprintw(6,0,"Right Wheel drop     %d",inputs.digital.wheel_drop.right);
+  mvprintw(7,0,"Left Wheel drop      %d",inputs.digital.wheel_drop.left);
+  mvprintw(8,0,"Right cliff          %d",inputs.digital.cliff.right);
+  mvprintw(9,0,"Center cliff         %d",inputs.digital.cliff.center);
+  mvprintw(10,0,"Left cliff           %d",inputs.digital.cliff.left);
+  mvprintw(11,0,"Button B0            %d",inputs.digital.button.b0);
+  mvprintw(12,0,"Button B1            %d",inputs.digital.button.b1);
+  mvprintw(13,0,"Button B2            %d",inputs.digital.button.b2);
+  /* mvprintw(14,0,"DOCK_IR_RIGHT_NEAR_RIGHT %d",inputs.digital[DOCK_IR_RIGHT_NEAR_RIGHT]); */
+  /* mvprintw(15,0,"DOCK_IR_RIGHT_NEAR_CENTER %d",inputs.digital[DOCK_IR_RIGHT_NEAR_CENTER]); */
+  /* mvprintw(16,0,"DOCK_IR_RIGHT_NEAR_LEFT %d",inputs.digital[DOCK_IR_RIGHT_NEAR_LEFT]); */
+  /* mvprintw(17,0,"DOCK_IR_RIGHT_FAR_RIGHT %d",inputs.digital[DOCK_IR_RIGHT_FAR_RIGHT]); */
+  /* mvprintw(18,0,"DOCK_IR_RIGHT_FAR_CENTER %d",inputs.digital[DOCK_IR_RIGHT_FAR_CENTER]); */
+  /* mvprintw(19,0,"DOCK_IR_RIGHT_FAR_LEFT %d",inputs.digital[DOCK_IR_RIGHT_FAR_LEFT]); */
+  /* mvprintw(20,0,"DOCK_IR_CENTRAL_NEAR_RIGHT %d",inputs.digital[DOCK_IR_CENTRAL_NEAR_RIGHT]); */
+  /* mvprintw(21,0,"DOCK_IR_CENTRAL_NEAR_CENTER %d",inputs.digital[DOCK_IR_CENTRAL_NEAR_CENTER]); */
+  /* mvprintw(22,0,"DOCK_IR_CENTRAL_NEAR_LEFT %d",inputs.digital[DOCK_IR_CENTRAL_NEAR_LEFT]); */
+  /* mvprintw(23,0,"DOCK_IR_CENTRAL_FAR_RIGHT %d",inputs.digital[DOCK_IR_CENTRAL_FAR_RIGHT]); */
+  /* mvprintw(24,0,"DOCK_IR_CENTRAL_FAR_CENTER %d",inputs.digital[DOCK_IR_CENTRAL_FAR_CENTER]); */
+  /* mvprintw(25,0,"DOCK_IR_CENTRAL_FAR_LEFT %d",inputs.digital[DOCK_IR_CENTRAL_FAR_LEFT]); */
+  /* mvprintw(26,0,"DOCK_IR_LEFT_NEAR_RIGHT %d",inputs.digital[DOCK_IR_LEFT_NEAR_RIGHT]); */
+  /* mvprintw(27,0,"DOCK_IR_LEFT_NEAR_CENTER %d",inputs.digital[DOCK_IR_LEFT_NEAR_CENTER]); */
+  /* mvprintw(28,0,"DOCK_IR_LEFT_NEAR_LEFT %d",inputs.digital[DOCK_IR_LEFT_NEAR_LEFT]); */
+  /* mvprintw(29,0,"DOCK_IR_LEFT_FAR_RIGHT %d",inputs.digital[DOCK_IR_LEFT_FAR_RIGHT]); */
+  /* mvprintw(30,0,"DOCK_IR_LEFT_FAR_CENTER %d",inputs.digital[DOCK_IR_LEFT_FAR_CENTER]); */
+  /* mvprintw(31,0,"DOCK_IR_LEFT_FAR_LEFT %d",inputs.digital[DOCK_IR_LEFT_FAR_LEFT]); */
+
+  mvprintw(31,0,"ANGLE_Z_AXIS %f",inputs.other.angle_z_axis);
+  mvprintw(32,0,"GYROSCOPE_X %f",inputs.other.gyroscope.x);
+  mvprintw(33,0,"GYROSCOPE_Y %f",inputs.other.gyroscope.y);
+  mvprintw(34,0,"GYROSCOPE_Z %f",inputs.other.gyroscope.z);
+  mvprintw(35,0,"WHEEL_PWM_RIGHT %f",inputs.other.wheel_pwm.right);
+  mvprintw(36,0,"WHEEL_PWM_LEFT %f",inputs.other.wheel_pwm.left);
+  mvprintw(37,0,"TIMESTAMP %f",inputs.other.timestamp);
+  mvprintw(38,0,"CHARGER_STATE %f",inputs.other.charger_state);
 }
 
 
@@ -583,20 +585,11 @@ quanser_bind_functions()
 int
 main(int argc, char * argv[])
 {
-  qbot_encoder_inputs read_encoder_buffer = {0};
-
-  qbot_digital_inputs read_digital_buffer = {0};
-
-  qbot_other_inputs read_other_buffer = {0};
-
-  qbot_digital_outputs write_digital_buffer = {0};
-
-  qbot_other_outputs write_other_buffer = {0};
 
   quanser_bind_functions();
 	
-  t_card qbot = {0};
-  qbot_initialize(&qbot);
+  qbot myqbot = {0};
+  qbot_initialize(&myqbot);
 
   initscr();
   curs_set(0);
@@ -608,39 +601,32 @@ main(int argc, char * argv[])
   int stop = 0;
   for(;;){
 
-    qbot_read(qbot,
-	      read_encoder_channels, SIZE(read_encoder_channels),
-	      &read_encoder_buffer,
-	      read_digital_channels, SIZE(read_digital_channels),
-	      &read_digital_buffer,
-	      read_other_channels, SIZE(read_other_channels),
-	      &read_other_buffer);
-
+    qbot_read(&myqbot);
 
     ch = getch();
 
     if(ch!=ERR){
       if(ch==68){ // left
     	if(stop) {
-	  write_other_buffer.wheel_velocity.right=0.0;
-	  write_other_buffer.wheel_velocity.left=0.0;
+	  myqbot.outputs.other.wheel_velocity.right=0.0;
+	  myqbot.outputs.other.wheel_velocity.left=0.0;
     	} else {
-	  write_other_buffer.wheel_velocity.right=0.1;
-	  write_other_buffer.wheel_velocity.left=0.1;
+	  myqbot.outputs.other.wheel_velocity.right=0.1;
+	  myqbot.outputs.other.wheel_velocity.left=0.1;
     	}
     	stop=!stop;
       }
       if(ch==67){ // right
-	write_other_buffer.predefined_sound++;
-	if(write_other_buffer.predefined_sound>6) {
-	  write_other_buffer.predefined_sound=0;
+	myqbot.outputs.other.predefined_sound++;
+	if(myqbot.outputs.other.predefined_sound>6) {
+	  myqbot.outputs.other.predefined_sound=0;
 	}
       }
       if(ch==66){ // right
     	if(stop) {
-    	  write_other_buffer.custom_pitch=0.0;
+    	  myqbot.outputs.other.custom_pitch=0.0;
     	} else {
-    	  write_other_buffer.custom_pitch=440.;
+    	  myqbot.outputs.other.custom_pitch=440.;
     	}
     	stop=!stop;
 	
@@ -650,19 +636,14 @@ main(int argc, char * argv[])
       }
     }
 
-    erase();
-    qbot_print_sensors(read_encoder_buffer, read_digital_buffer, read_other_buffer);
+    qbot_print_curses_sensors(myqbot);
 
-    qbot_write(qbot,
-	       write_digital_channels,SIZE(write_digital_channels),
-	       write_digital_buffer,
-	       write_other_channels,SIZE(write_other_channels),
-	       write_other_buffer);
+    qbot_write(myqbot);
 
     usleep(1000);
   }
 
-  qbot_terminate(qbot);
+  qbot_terminate(myqbot);
   endwin();
   exit(EXIT_SUCCESS);
 }
