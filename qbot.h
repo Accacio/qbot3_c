@@ -26,8 +26,8 @@ typedef struct tag_task* t_task;
 
 #define SIZE(x) ((sizeof(x))/ (sizeof &x))
 
-#define BIND_FUNCTION(function) \
-  *(void **) (&(function)) = dlsym(handle, #function); \
+#define BIND_FUNCTION(handle,function)		       \
+  *(void **) (&(function)) = dlsym((handle), #function);	\
   error = dlerror(); \
   if(error!=NULL) { \
     fprintf(stderr,"%s\n",error); \
@@ -526,15 +526,16 @@ quanser_bind_functions()
   }
   dlerror();
 
-  BIND_FUNCTION(hil_open);
-  BIND_FUNCTION(hil_close);
-  BIND_FUNCTION(hil_is_valid);
-  BIND_FUNCTION(hil_set_card_specific_options);
-  BIND_FUNCTION(hil_read);
-  BIND_FUNCTION(hil_write);
-  BIND_FUNCTION(hil_set_encoder_counts);
-  BIND_FUNCTION(hil_get_double_property);
-  BIND_FUNCTION(hil_set_double_property);
+  BIND_FUNCTION(handle,hil_open);
+  BIND_FUNCTION(handle,hil_close);
+  BIND_FUNCTION(handle,hil_is_valid);
+  BIND_FUNCTION(handle,hil_set_card_specific_options);
+  BIND_FUNCTION(handle,hil_read);
+  BIND_FUNCTION(handle,hil_write);
+  BIND_FUNCTION(handle,hil_set_encoder_counts);
+  BIND_FUNCTION(handle,hil_get_double_property);
+  BIND_FUNCTION(handle,hil_set_double_property);
+  dlclose(handle);
 }
 
 
