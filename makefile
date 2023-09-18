@@ -1,6 +1,6 @@
 
 
-test_qbot: test_qbot.c 
+test_qbot: test_qbot.c qbot.h
 	gcc $^ -ldl -lncursesw -o $@ 
 
 test: test_qbot
