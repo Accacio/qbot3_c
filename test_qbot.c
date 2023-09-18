@@ -344,7 +344,7 @@ qbot_terminate(t_card card)
 }
 
 void
-qbot_print_sensors(t_int32 read_encoder_buffer[],t_boolean read_digital_buffer[],qbot_other_inputs * read_other_buffer)
+qbot_print_sensors(t_int32 read_encoder_buffer[],t_boolean read_digital_buffer[],qbot_other_inputs read_other_buffer)
 {
     mvprintw(1,0,"Right wheel encoder: %d",read_encoder_buffer[0]);
     mvprintw(2,0,"Left  wheel encoder: %d",read_encoder_buffer[1]);
@@ -378,16 +378,14 @@ qbot_print_sensors(t_int32 read_encoder_buffer[],t_boolean read_digital_buffer[]
     /* mvprintw(30,0,"DOCK_IR_LEFT_FAR_CENTER %d",read_digital_buffer[DOCK_IR_LEFT_FAR_CENTER]); */
     /* mvprintw(31,0,"DOCK_IR_LEFT_FAR_LEFT %d",read_digital_buffer[DOCK_IR_LEFT_FAR_LEFT]); */
 
-    mvprintw(31,0,"ANGLE_Z_AXIS %f",read_other_buffer[ANGLE_Z_AXIS]);
-    mvprintw(32,0,"GYROSCOPE_X %f",read_other_buffer[GYROSCOPE_X]);
-    mvprintw(33,0,"GYROSCOPE_Y %f",read_other_buffer[GYROSCOPE_Y]);
-    mvprintw(34,0,"GYROSCOPE_Z %f",read_other_buffer[GYROSCOPE_Z]);
-    mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer[WHEEL_PWM_RIGHT]);
-    mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer[WHEEL_PWM_LEFT]);
-    mvprintw(37,0,"TIMESTAMP %f",read_other_buffer[TIMESTAMP]);
-    mvprintw(38,0,"CHARGER_STATE %f",read_other_buffer[CHARGER_STATE]);
-    /* mvprintw(42,0,"%d",sizeof((&write_other_buffer)[0])); */
-
+    mvprintw(31,0,"ANGLE_Z_AXIS %f",read_other_buffer.angle_z_axis);
+    mvprintw(32,0,"GYROSCOPE_X %f",read_other_buffer.gyroscope.x);
+    mvprintw(33,0,"GYROSCOPE_Y %f",read_other_buffer.gyroscope.y);
+    mvprintw(34,0,"GYROSCOPE_Z %f",read_other_buffer.gyroscope.z);
+    mvprintw(35,0,"WHEEL_PWM_RIGHT %f",read_other_buffer.wheel_pwm_right);
+    mvprintw(36,0,"WHEEL_PWM_LEFT %f",read_other_buffer.wheel_pwm_left);
+    mvprintw(37,0,"TIMESTAMP %f",read_other_buffer.timestamp);
+    mvprintw(38,0,"CHARGER_STATE %f",read_other_buffer.charger_state);
 }
 
 
@@ -553,7 +551,7 @@ main(int argc, char * argv[])
     }
 
     erase();
-    qbot_print_sensors(read_encoder_buffer, read_digital_buffer, &read_other_buffer);
+    qbot_print_sensors(read_encoder_buffer, read_digital_buffer, read_other_buffer);
 
     qbot_write(qbot,
 		  write_digital_channels,SIZE(write_digital_channels),
