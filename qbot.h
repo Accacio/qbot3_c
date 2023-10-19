@@ -12,6 +12,7 @@ typedef char               t_boolean;
 typedef unsigned int       t_uint;
 typedef unsigned long long t_ulong;
 typedef unsigned short     t_ushort;
+typedef unsigned char      t_uint8;
 typedef t_ushort           t_uint16;
 typedef t_uint             t_uint32;
 typedef t_ulong            t_uint64;
